@@ -9,7 +9,7 @@ class C:
 
 
 def main():
-    posts_db = pickledb.load('data/posts.db', False)
+    posts_db = pickledb.load('posts.db', False)
     config = configparser.ConfigParser()
     config.read('conf.ini')
     reddit_user = config['REDDIT']['reddit_user']
