@@ -19,9 +19,11 @@ def main():
     copy_from_subreddit = config['REDDIT']['copy_from_subreddit']
     copy_to_subreddit = config['REDDIT']['copy_to_subreddit']
     future_only = int(config['REDDIT']['future_only'])
-    test_mode = int(config['REDDIT']['test_mode'])
     flair_css_class = config['REDDIT']['flair_css_class']
     flair_text = config['REDDIT']['flair_text']
+    min_score = int(config['REDDIT']['min_score'])
+    min_comments = int(config['REDDIT']['min_comments'])
+    test_mode = int(config['REDDIT']['test_mode'])
 
     reddit = praw.Reddit(
         username=reddit_user,
@@ -39,23 +41,27 @@ def main():
     print(f"""{C.Y}
 ╔═╗╔═╗╔═╗╦ ╦╔═╗╔╗╔╔═╗╔═╗
 ║  ║ ║╠═╝╚╦╝╚═╗║║║║ ║║ ║  {t}
-╚═╝╚═╝╩   ╩ ╚═╝╝╚╝╚═╝╚═╝  {C.C}v1.0{C.W}
+╚═╝╚═╝╩   ╩ ╚═╝╝╚╝╚═╝╚═╝  {C.C}v1.1{C.W}
     """)
 
     c = len(posts_db.getall())
     start_time = time.time()
 
     for submission in reddit.subreddit(copy_from_subreddit).stream.submissions():
-        if future_only:
-            if submission.created_utc >= start_time:
-                go = True
-            else:
-                go = False
+        id = submission.id
+
+        if future_only and submission.created_utc <= start_time:
+            go = False
         else:
             go = True
 
+        if min_score and submission.score <= min_score:
+            go = False
+
+        if min_comments and submission.num_comments <= min_comments:
+            go = False
+
         if go:
-            id = submission.id
             title = submission.title
             body = submission.selftext
 
@@ -67,11 +73,15 @@ def main():
                         title=title, selftext=body)
                     new_submission = reddit.submission(id=new_id)
                     new_submission.mod.approve()
-                    new_submission.mod.flair(text=flair_text, css_class=flair_css_class)
+                    new_submission.mod.flair(
+                        text=flair_text, css_class=flair_css_class)
+
                 c += 1
                 print(f'{C.G}{c}: {id}{C.W}')
             else:
-                print(f'{C.P}{id}{C.W}')
+                print(f'{C.P}X: {id}{C.W}')
+        else:
+            print(f'{C.R}X: {id}{C.W}')
 
 
 if __name__ == '__main__':
