@@ -17,4 +17,6 @@ Copies submissions from chosen subreddit to another, approves it and applies fla
 - If ```min_score``` is more than 0 it will only get posts with a higher score given.
 - If ```min_comments``` is more than 0 it will only get posts with a higher amount of comments given.
 
+---
 
+BTC - 1AYSiE7mhR9XshtS4mU2rRoAGxN8wSo4tK
